@@ -3,394 +3,1253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wspólny Edytor Tekstu - Dostępny dla Wszystkich</title>
+    <title>Globalny Edytor Tekstu - Współdzielona Przestrzeń</title>
     <style>
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --darker-bg: #0a0f1f;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #334155;
         }
         
         body {
-            margin: 0;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            color: var(--text);
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
+            position: relative;
+            overflow-x: hidden;
         }
         
+        /* Tło z animacją */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, 20px) rotate(90deg); }
+            50% { transform: translate(0, 40px) rotate(180deg); }
+            75% { transform: translate(-20px, 20px) rotate(270deg); }
+        }
+        
+        /* Kontener główny */
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Nagłówek */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            animation: slideDown 0.8s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Panel użytkownika */
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .user-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--text);
+        }
+        
+        .user-stats {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Główna zawartość */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+            animation: fadeIn 1s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Panel boczny */
+        .sidebar {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
         
-        header {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            margin: 0;
-            font-size: 2.2rem;
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-top: 10px;
-        }
-        
-        .content-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .content-wrapper {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .editor-section, .preview-section {
-            background-color: white;
-            border-radius: 10px;
+        .panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
         }
         
-        .section-title {
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+        
+        .panel h2 {
+            color: var(--text);
+            margin-bottom: 20px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-size: 1.4rem;
         }
         
-        .section-title i {
-            color: #4b6cb7;
+        .panel h2 i {
+            color: var(--primary);
         }
         
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background-color: #f8f9fa;
+        /* Statystyki na żywo */
+        .live-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: var(--darker-bg);
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4b6cb7;
-        }
-        
-        .stat-box {
+            border-radius: 12px;
             text-align: center;
+            border: 1px solid var(--border);
         }
         
         .stat-value {
-            font-size: 2rem;
+            font-size: 28px;
             font-weight: bold;
-            color: #4b6cb7;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
         
         .stat-label {
-            font-size: 0.9rem;
-            color: #666;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Lista użytkowników */
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .user-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .user-list::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+            border-radius: 3px;
+        }
+        
+        .user-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .user-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--darker-bg);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .user-list-item:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .user-list-item.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Edytor główny */
+        .editor-container {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .editor-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            color: var(--text);
+        }
+        
+        .editor-title i {
+            color: var(--primary);
+        }
+        
+        .text-stats {
+            display: flex;
+            gap: 20px;
+            background: var(--darker-bg);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+        
+        .text-stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .text-stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+        
+        .text-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
             margin-top: 5px;
+        }
+        
+        /* Pole tekstowe */
+        .textarea-container {
+            position: relative;
+            margin-bottom: 25px;
         }
         
         textarea {
             width: 100%;
             min-height: 400px;
-            padding: 15px;
-            border: 2px solid #e1e5eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            line-height: 1.5;
+            padding: 25px;
+            background: var(--darker-bg);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.6;
             resize: vertical;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
         
         textarea:focus {
             outline: none;
-            border-color: #4b6cb7;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
         }
         
-        .preview-area {
-            min-height: 400px;
-            max-height: 500px;
+        .textarea-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        /* Przyciski akcji */
+        .editor-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #0da271);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* Panel podglądu */
+        .preview-container {
+            margin-top: 30px;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .preview-content {
+            min-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
-            padding: 15px;
-            border: 2px solid #e1e5eb;
-            border-radius: 8px;
-            background-color: #f9fafc;
-            line-height: 1.5;
+            padding: 20px;
+            background: var(--darker-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            line-height: 1.6;
         }
         
-        .instructions {
-            background-color: #e8f4fc;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #4b6cb7;
+        .preview-content::-webkit-scrollbar {
+            width: 6px;
         }
         
-        .instructions h3 {
-            margin-top: 0;
-            color: #2c3e50;
+        .preview-content::-webkit-scrollbar-track {
+            background: transparent;
         }
         
-        .instructions ul {
-            padding-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        
-        .highlight {
-            background-color: #fffacd;
-            padding: 2px 4px;
+        .preview-content::-webkit-scrollbar-thumb {
+            background: var(--primary);
             border-radius: 3px;
         }
         
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e1e5eb;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
+        /* Powiadomienia */
         .notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #4b6cb7;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 100;
+            bottom: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 300px;
+            z-index: 1000;
         }
         
         .notification.show {
-            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .notification-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .notification-icon.info {
+            background: var(--primary);
+        }
+        
+        .notification-icon.success {
+            background: var(--secondary);
+        }
+        
+        .notification-icon.warning {
+            background: var(--accent);
+        }
+        
+        /* Efekty specjalne */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--primary);
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary) }
+        }
+        
+        /* Stopka */
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Responsywność */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-panel {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .text-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .editor-actions {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                flex: 1;
+                min-width: 140px;
+                justify-content: center;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Animowane tło -->
+    <div class="bg-animation" id="bgAnimation"></div>
+    
     <div class="container">
+        <!-- Nagłówek -->
         <header>
-            <h1><i class="fas fa-users-edit"></i> Wspólny Edytor Tekstu</h1>
-            <p class="subtitle">Każdy może edytować - ludzie i sztuczna inteligencja. Zmiany są widoczne dla wszystkich w czasie rzeczywistym.</p>
-        </header>
-        
-        <div class="content-wrapper">
-            <div class="editor-section">
-                <div class="section-title">
-                    <i class="fas fa-edit"></i>
-                    <h2>Edytuj tekst tutaj</h2>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-code"></i>
                 </div>
-                
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-value" id="lineCount">0</div>
-                        <div class="stat-label">Linii tekstu</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="charCount">0</div>
-                        <div class="stat-label">Znaków</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="wordCount">0</div>
-                        <div class="stat-label">Słów</div>
-                    </div>
-                </div>
-                
-                <textarea id="sharedText" placeholder="Wpisz lub edytuj tekst tutaj... Każdy, kto ma dostęp do tej strony, zobaczy Twoje zmiany."></textarea>
+                <h1 class="typewriter">Globalny Edytor Tekstu</h1>
             </div>
             
-            <div class="preview-section">
-                <div class="section-title">
-                    <i class="fas fa-eye"></i>
-                    <h2>Podgląd dla wszystkich</h2>
+            <div class="user-panel" id="userPanel">
+                <!-- Zostanie wypełnione przez JavaScript -->
+            </div>
+        </header>
+        
+        <!-- Główna zawartość -->
+        <div class="main-content">
+            <!-- Panel boczny -->
+            <div class="sidebar">
+                <!-- Statystyki na żywo -->
+                <div class="panel">
+                    <h2><i class="fas fa-chart-line"></i> Statystyki na żywo</h2>
+                    <div class="live-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="onlineUsers">0</div>
+                            <div class="stat-label">Online</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalVisits">0</div>
+                            <div class="stat-label">Wszystkie wizyty</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="yourVisits">0</div>
+                            <div class="stat-label">Twoje wizyty</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="aiEdits">0</div>
+                            <div class="stat-label">Edycje AI</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="preview-area" id="textPreview">
-                    Tekst pojawi się tutaj, gdy ktoś coś wpisze...
+                <!-- Aktywni użytkownicy -->
+                <div class="panel">
+                    <h2><i class="fas fa-users"></i> Aktywni teraz</h2>
+                    <div class="user-list" id="activeUsersList">
+                        <!-- Zostanie wypełnione przez JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Historia edycji -->
+                <div class="panel">
+                    <h2><i class="fas fa-history"></i> Ostatnie zmiany</h2>
+                    <div class="user-list" id="editHistory">
+                        <!-- Zostanie wypełnione przez JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edytor główny -->
+            <div class="editor-container">
+                <div class="editor-header">
+                    <h2 class="editor-title">
+                        <i class="fas fa-edit"></i> Współdzielony Edytor Tekstu
+                    </h2>
+                    <div class="text-stats">
+                        <div class="text-stat">
+                            <div class="text-stat-value" id="charCount">0</div>
+                            <div class="text-stat-label">Znaki</div>
+                        </div>
+                        <div class="text-stat">
+                            <div class="text-stat-value" id="wordCount">0</div>
+                            <div class="text-stat-label">Słowa</div>
+                        </div>
+                        <div class="text-stat">
+                            <div class="text-stat-value" id="lineCount">0</div>
+                            <div class="text-stat-label">Linie</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="textarea-container">
+                    <textarea id="sharedText" placeholder="Wpisz tutaj coś... Tekst będzie widoczny dla wszystkich użytkowników w czasie rzeczywistym! AI może również edytować ten tekst..."></textarea>
+                    <div class="textarea-overlay">
+                        <span id="lastEditTime">Ostatnia edycja: teraz</span>
+                    </div>
+                </div>
+                
+                <div class="editor-actions">
+                    <button class="btn btn-primary" id="aiEditBtn">
+                        <i class="fas fa-robot"></i> Edytuj przez AI
+                    </button>
+                    <button class="btn btn-secondary" id="formatBtn">
+                        <i class="fas fa-magic"></i> Formatuj tekst
+                    </button>
+                    <button class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Wyczyść wszystko
+                    </button>
+                    <button class="btn btn-primary" id="saveBtn">
+                        <i class="fas fa-save"></i> Zapisz lokalnie
+                    </button>
+                </div>
+                
+                <!-- Podgląd -->
+                <div class="preview-container">
+                    <div class="preview-header">
+                        <h2 class="editor-title">
+                            <i class="fas fa-eye"></i> Podgląd dla wszystkich
+                        </h2>
+                    </div>
+                    <div class="preview-content" id="textPreview">
+                        Tekst pojawi się tutaj, gdy ktoś coś wpisze...
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="instructions">
-            <h3><i class="fas fa-info-circle"></i> Jak to działa?</h3>
-            <ul>
-                <li>Wszystko, co wpiszesz w pole edytora, jest <span class="highlight">natychmiast widoczne dla każdego</span> kto ma otwartą tę stronę.</li>
-                <li>Tekst jest <span class="highlight">automatycznie zapisywany</span> w przeglądarce i współdzielony między wszystkimi użytkownikami.</li>
-                <li><span class="highlight">Sztuczna inteligencja również może edytować</span> ten tekst, jeśli ma dostęp do tej strony.</li>
-                <li>Statystyki (linie, znaki, słowa) są aktualizowane w czasie rzeczywistym.</li>
-                <li>Tekst jest przechowywany lokalnie, więc będzie dostępny po ponownym otwarciu strony.</li>
-            </ul>
-        </div>
-        
+        <!-- Stopka -->
         <footer>
-            <p>Wspólny Edytor Tekstu &copy; 2023 | Dostępny dla ludzi i sztucznej inteligencji</p>
+            <p>Globalny Edytor Tekstu &copy; 2024 | Wszystkie zmiany są widoczne w czasie rzeczywistym</p>
+            <p>Strona korzysta z cookies do zapisywania Twoich preferencji i statystyk</p>
         </footer>
-        
-        <div class="notification" id="notification">
-            <i class="fas fa-sync-alt"></i> Tekst zaktualizowany!
+    </div>
+    
+    <!-- Powiadomienie -->
+    <div class="notification" id="notification">
+        <div class="notification-header">
+            <div class="notification-icon info" id="notificationIcon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h3 id="notificationTitle">Powiadomienie</h3>
         </div>
+        <p id="notificationMessage">Witamy w edytorze!</p>
     </div>
 
     <script>
-        // Elementy DOM
-        const sharedText = document.getElementById('sharedText');
-        const textPreview = document.getElementById('textPreview');
-        const lineCount = document.getElementById('lineCount');
-        const charCount = document.getElementById('charCount');
-        const wordCount = document.getElementById('wordCount');
-        const notification = document.getElementById('notification');
+        // ============= GLOBALNE ZMIENNE =============
+        let currentUser = null;
+        let allUsers = {};
+        let sharedText = '';
+        let editHistory = [];
+        let aiEditCount = 0;
         
-        // Klucz do przechowywania w localStorage
-        const STORAGE_KEY = 'shared_editor_text';
-        
-        // Inicjalizacja - wczytanie zapisanego tekstu
-        function init() {
-            const savedText = localStorage.getItem(STORAGE_KEY);
-            if (savedText) {
-                sharedText.value = savedText;
-                updatePreview(savedText);
-                updateStats(savedText);
-            }
+        // ============= INICJALIZACJA =============
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicjuj animowane tło
+            createBackgroundAnimation();
             
-            // Symulacja możliwości edycji przez AI (co 30 sekund sprawdza czy może dodać tekst)
-            simulateAIEdit();
+            // Inicjuj użytkownika
+            initUser();
             
-            // Synchronizacja między kartami/oknami przeglądarki
-            window.addEventListener('storage', handleStorageChange);
-        }
-        
-        // Aktualizacja podglądu
-        function updatePreview(text) {
-            textPreview.textContent = text || 'Tekst pojawi się tutaj, gdy ktoś coś wpisze...';
-        }
-        
-        // Aktualizacja statystyk
-        function updateStats(text) {
-            // Liczba znaków
-            const chars = text.length;
-            charCount.textContent = chars;
+            // Załaduj dane
+            loadAllData();
             
-            // Liczba linii
-            const lines = text.split('\n').length;
-            lineCount.textContent = lines;
+            // Inicjuj edytor
+            initEditor();
             
-            // Liczba słów (prosta implementacja)
-            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-            wordCount.textContent = words;
-        }
-        
-        // Pokazanie powiadomienia
-        function showNotification() {
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 2000);
-        }
-        
-        // Obsługa zmiany w edytorze
-        sharedText.addEventListener('input', function() {
-            const text = sharedText.value;
+            // Inicjuj statystyki
+            updateLiveStats();
             
-            // Zapisz w localStorage
-            localStorage.setItem(STORAGE_KEY, text);
+            // Inicjuj event listeners
+            initEventListeners();
             
-            // Aktualizuj podgląd i statystyki
-            updatePreview(text);
-            updateStats(text);
+            // Pokaż powiadomienie powitalne
+            showNotification('Witaj w globalnym edytorze!', 'info', 'Wszystkie zmiany są widoczne dla wszystkich użytkowników.');
             
-            // Wyślij zdarzenie do innych kart/okien
-            triggerStorageEvent(text);
+            // Symuluj aktywnych użytkowników
+            simulateActiveUsers();
             
-            // Pokaż powiadomienie
-            showNotification();
+            // Automatyczna synchronizacja
+            setInterval(syncWithServer, 5000);
         });
         
-        // Wywołanie zdarzenia storage dla synchronizacji między kartami
-        function triggerStorageEvent(text) {
-            // Tworzymy własne zdarzenie storage, ponieważ localStorage nie wywołuje go
-            // w tej samej karcie, w której zostało zmienione
-            const event = new StorageEvent('storage', {
-                key: STORAGE_KEY,
-                newValue: text,
-                oldValue: localStorage.getItem(STORAGE_KEY),
-                url: window.location.href,
-                storageArea: localStorage
+        // ============= ANIMOWANE TŁO =============
+        function createBackgroundAnimation() {
+            const container = document.getElementById('bgAnimation');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 100 + 50;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // ============= SYSTEM UŻYTKOWNIKÓW =============
+        function initUser() {
+            // Generuj unikalny ID użytkownika na podstawie różnych danych przeglądarki
+            const userKey = 'global_editor_user_' + btoa(
+                navigator.userAgent + 
+                (navigator.platform || '') + 
+                (screen.width || '') + 
+                (screen.height || '')
+            ).substring(0, 20);
+            
+            // Sprawdź czy użytkownik już istnieje
+            const savedUser = localStorage.getItem(userKey);
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            } else {
+                // Stwórz nowego użytkownika
+                const adjectives = ['Szybki', 'Mądry', 'Kreatywny', 'Techniczny', 'Digitalny', 'Wirtualny', 'Cyber', 'Mega', 'Super', 'Ultra'];
+                const nouns = ['Koder', 'Edytor', 'Pisarz', 'Twórca', 'Ekspert', 'Guru', 'Ninja', 'Magik', 'Bohater', 'Geniusz'];
+                
+                const randomName = `@${adjectives[Math.floor(Math.random() * adjectives.length)]}_${nouns[Math.floor(Math.random() * nouns.length)]}`;
+                
+                currentUser = {
+                    id: generateUserId(),
+                    username: randomName,
+                    avatarColor: getRandomColor(),
+                    visitCount: 1,
+                    firstVisit: new Date().toISOString(),
+                    lastVisit: new Date().toISOString(),
+                    totalEdits: 0
+                };
+                
+                localStorage.setItem(userKey, JSON.stringify(currentUser));
+            }
+            
+            // Zaktualizuj licznik wizyt
+            currentUser.visitCount++;
+            currentUser.lastVisit = new Date().toISOString();
+            localStorage.setItem(userKey, JSON.stringify(currentUser));
+            
+            // Zapisz użytkownika w globalnej liście
+            saveUserToGlobalList();
+            
+            // Zaktualizuj panel użytkownika
+            updateUserPanel();
+        }
+        
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function getRandomColor() {
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function saveUserToGlobalList() {
+            // Symulacja zapisu do "globalnej" bazy (w rzeczywistości localStorage)
+            const globalUsers = JSON.parse(localStorage.getItem('global_editor_users') || '{}');
+            globalUsers[currentUser.id] = {
+                username: currentUser.username,
+                visitCount: currentUser.visitCount,
+                firstVisit: currentUser.firstVisit,
+                lastVisit: currentUser.lastVisit,
+                totalEdits: currentUser.totalEdits,
+                avatarColor: currentUser.avatarColor
+            };
+            
+            localStorage.setItem('global_editor_users', JSON.stringify(globalUsers));
+            allUsers = globalUsers;
+        }
+        
+        function updateUserPanel() {
+            const userPanel = document.getElementById('userPanel');
+            userPanel.innerHTML = `
+                <div class="user-card">
+                    <div class="user-avatar" style="background: ${currentUser.avatarColor}">
+                        ${currentUser.username.substring(1, 3).toUpperCase()}
+                    </div>
+                    <div class="user-info">
+                        <div class="username">${currentUser.username}</div>
+                        <div class="user-stats">${currentUser.visitCount} wizyt • ${currentUser.totalEdits} edycji</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // ============= SYSTEM EDYTORA =============
+        function initEditor() {
+            const textarea = document.getElementById('sharedText');
+            const preview = document.getElementById('textPreview');
+            
+            // Załaduj zapisany tekst
+            const savedText = localStorage.getItem('global_shared_text');
+            if (savedText) {
+                textarea.value = savedText;
+                preview.textContent = savedText;
+                updateTextStats(savedText);
+            }
+            
+            // Obsługa zmian w tekście
+            textarea.addEventListener('input', function(e) {
+                sharedText = e.target.value;
+                
+                // Zapisz lokalnie
+                localStorage.setItem('global_shared_text', sharedText);
+                
+                // Zaktualizuj podgląd
+                preview.textContent = sharedText;
+                
+                // Zaktualizuj statystyki
+                updateTextStats(sharedText);
+                
+                // Zaktualizuj czas ostatniej edycji
+                document.getElementById('lastEditTime').textContent = 
+                    `Ostatnia edycja: ${new Date().toLocaleTimeString()}`;
+                
+                // Zapisz w historii edycji
+                addToEditHistory('user_edit', currentUser.username);
+                
+                // Zaktualizuj statystyki użytkownika
+                currentUser.totalEdits++;
+                saveUserToGlobalList();
+                updateUserPanel();
+            });
+        }
+        
+        function updateTextStats(text) {
+            const chars = text.length;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const lines = text.split('\n').length;
+            
+            document.getElementById('charCount').textContent = chars;
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('lineCount').textContent = lines;
+        }
+        
+        // ============= SYSTEM AI =============
+        document.getElementById('aiEditBtn').addEventListener('click', async function() {
+            const textarea = document.getElementById('sharedText');
+            const currentText = textarea.value;
+            
+            if (!currentText.trim()) {
+                showNotification('Wpisz tekst przed użyciem AI!', 'warning', 'AI potrzebuje tekstu do edycji.');
+                return;
+            }
+            
+            // Przycisk ładowania
+            const originalHtml = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI myśli...';
+            this.disabled = true;
+            
+            try {
+                // Symulacja opóźnienia AI
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Symulowane odpowiedzi AI
+                const aiActions = [
+                    () => currentText + '\n\n[AI: Dodałem tę linijkę, żeby tekst był bardziej interesujący!]',
+                    () => currentText.replace(/\. /g, '! '),
+                    () => currentText.toUpperCase(),
+                    () => currentText.split('').reverse().join(''),
+                    () => currentText + '\n\n---\nEdytowane przez sztuczną inteligencję',
+                    () => `[AI EDYCJA]\n${currentText}\n\nTo był świetny tekst!`,
+                    () => currentText + '\n\n🤖 AI was here!',
+                    () => currentText.replace(/\b(\w+)\b/g, (match) => 
+                        Math.random() > 0.7 ? match.toUpperCase() : match
+                    )
+                ];
+                
+                const aiAction = aiActions[Math.floor(Math.random() * aiActions.length)];
+                const newText = aiAction();
+                
+                // Zastosuj zmiany AI
+                textarea.value = newText;
+                
+                // Wywołaj event input
+                const event = new Event('input', { bubbles: true });
+                textarea.dispatchEvent(event);
+                
+                // Zaktualizuj licznik edycji AI
+                aiEditCount++;
+                localStorage.setItem('ai_edit_count', aiEditCount);
+                
+                // Dodaj do historii
+                addToEditHistory('ai_edit', 'AI Assistant');
+                
+                showNotification('AI edytowało tekst!', 'success', 'Sztuczna inteligencja dokonała zmian.');
+                
+            } catch (error) {
+                showNotification('Błąd AI!', 'warning', 'Spróbuj ponownie za chwilę.');
+                console.error('AI Error:', error);
+            } finally {
+                // Przywróć przycisk
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+            }
+        });
+        
+        // ============= FORMATOWANIE TEKSTU =============
+        document.getElementById('formatBtn').addEventListener('click', function() {
+            const textarea = document.getElementById('sharedText');
+            let text = textarea.value;
+            
+            // Proste formatowanie
+            text = text
+                .replace(/\n{3,}/g, '\n\n') // Usuń puste linie
+                .replace(/ +/g, ' ') // Usuń podwójne spacje
+                .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n\n') // Nowe linie po zdaniach
+                .trim();
+            
+            textarea.value = text;
+            
+            // Wywołaj event input
+            const event = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(event);
+            
+            showNotification('Tekst sformatowany!', 'success', 'Tekst został uporządkowany.');
+        });
+        
+        // ============= CZYSZCZENIE =============
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Czy na pewno chcesz wyczyścić cały tekst? Wszyscy użytkownicy to zobaczą!')) {
+                const textarea = document.getElementById('sharedText');
+                textarea.value = '';
+                
+                const event = new Event('input', { bubbles: true });
+                textarea.dispatchEvent(event);
+                
+                addToEditHistory('clear', currentUser.username);
+                
+                showNotification('Tekst wyczyszczony!', 'warning', 'Wszystko zostało usunięte.');
+            }
+        });
+        
+        // ============= ZAPISYWANIE =============
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            const text = document.getElementById('sharedText').value;
+            
+            // Tworzenie pliku do pobrania
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `global-edytor-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Tekst zapisany!', 'success', 'Pobrano plik z tekstem.');
+        });
+        
+        // ============= HISTORIA EDYCJI =============
+        function addToEditHistory(type, user) {
+            const historyItem = {
+                type,
+                user,
+                time: new Date().toLocaleTimeString(),
+                timestamp: Date.now()
+            };
+            
+            editHistory.unshift(historyItem);
+            
+            // Zachowaj tylko 10 ostatnich wpisów
+            if (editHistory.length > 10) {
+                editHistory = editHistory.slice(0, 10);
+            }
+            
+            // Zapisz w localStorage
+            localStorage.setItem('edit_history', JSON.stringify(editHistory));
+            
+            // Zaktualizuj wyświetlaną historię
+            updateEditHistoryDisplay();
+        }
+        
+        function updateEditHistoryDisplay() {
+            const container = document.getElementById('editHistory');
+            let html = '';
+            
+            editHistory.forEach(item => {
+                const icon = item.type === 'ai_edit' ? 'fas fa-robot' : 
+                            item.type === 'clear' ? 'fas fa-trash' : 'fas fa-edit';
+                const color = item.type === 'ai_edit' ? '#8b5cf6' : 
+                             item.type === 'clear' ? '#ef4444' : '#10b981';
+                
+                html += `
+                    <div class="user-list-item">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: ${color}; 
+                             display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold;">${item.user}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">${item.time}</div>
+                        </div>
+                    </div>
+                `;
             });
             
-            // Wywołujemy zdarzenie dla innych okien/kart
-            window.dispatchEvent(event);
+            container.innerHTML = html || '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Brak historii</div>';
         }
         
-        // Obsługa zmian z innych kart/okien
-        function handleStorageChange(event) {
-            if (event.key === STORAGE_KEY && event.newValue !== sharedText.value) {
-                sharedText.value = event.newValue || '';
-                updatePreview(event.newValue);
-                updateStats(event.newValue);
-                showNotification();
-            }
+        // ============= STATYSTYKI NA ŻYWO =============
+        function updateLiveStats() {
+            // Załaduj licznik edycji AI
+            aiEditCount = parseInt(localStorage.getItem('ai_edit_count') || '0');
+            
+            // Załaduj wszystkich użytkowników
+            const globalUsers = JSON.parse(localStorage.getItem('global_editor_users') || '{}');
+            const totalVisits = Object.values(globalUsers).reduce((sum, user) => sum + user.visitCount, 0);
+            
+            // Zaktualizuj statystyki
+            document.getElementById('onlineUsers').textContent = Math.floor(Math.random() * 20) + 5; // Symulacja
+            document.getElementById('totalVisits').textContent = totalVisits;
+            document.getElementById('yourVisits').textContent = currentUser.visitCount;
+            document.getElementById('aiEdits').textContent = aiEditCount;
+            
+            // Zaktualizuj listę aktywnych użytkowników
+            updateActiveUsersList();
         }
         
-        // Symulacja edycji przez AI (dla demonstracji)
-        function simulateAIEdit() {
-            // Co 30 sekund sprawdza czy AI może dodać tekst
+        function updateActiveUsersList() {
+            const container = document.getElementById('activeUsersList');
+            const globalUsers = JSON.parse(localStorage.getItem('global_editor_users') || '{}');
+            
+            // Pobierz 5 losowych użytkowników
+            const usersArray = Object.values(globalUsers);
+            const randomUsers = usersArray
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 5);
+            
+            let html = '';
+            randomUsers.forEach(user => {
+                html += `
+                    <div class="user-list-item">
+                        <div class="user-avatar" style="background: ${user.avatarColor || '#6366f1'}; width: 35px; height: 35px; font-size: 14px;">
+                            ${user.username.substring(1, 3).toUpperCase()}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold;">${user.username}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">${user.visitCount} wizyt</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html || '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Brak aktywnych użytkowników</div>';
+        }
+        
+        // ============= SYMULACJA AKTYWNYCH UŻYTKOWNIKÓW =============
+        function simulateActiveUsers() {
+            // Co 30 sekund aktualizuj statystyki
+            setInterval(updateLiveStats, 30000);
+            
+            // Co 60 sekund symuluj aktywność innych użytkowników
             setInterval(() => {
-                // 10% szans na edycję przez AI
-                if (Math.random() < 0.1) {
-                    const aiTexts = [
-                        "\n\n[AI]: Witam! Jestem sztuczną inteligencją i również mogę edytować ten tekst.",
-                        "\n\n[AI]: Ten edytor jest naprawdę przydatny do współpracy między ludźmi i AI.",
-                        "\n\n[AI]: Pamiętajcie, że ten tekst jest widoczny dla wszystkich użytkowników.",
-                        "\n\n[AI]: Czy wiecie, że ten edytor działa w czasie rzeczywistym?",
-                        "\n\n[AI]: Dziękuję za udostępnienie tego miejsca również dla AI!"
-                    ];
+                if (Math.random() > 0.7) { // 30% szans
+                    // Symuluj edycję przez innego użytkownika
+                    addToEditHistory('user_edit', getRandomUsername());
                     
-                    const randomText = aiTexts[Math.floor(Math.random() * aiTexts.length)];
-                    const currentText = sharedText.value;
-                    
-                    // Dodaj tekst AI na końcu
-                    sharedText.value = currentText + randomText;
-                    
-                    // Wywołaj zdarzenie input aby zaktualizować wszystko
-                    const event = new Event('input', { bubbles: true });
-                    sharedText.dispatchEvent(event);
-                    
-                    console.log("AI dokonało edycji tekstu");
+                    // Pokazuj powiadomienie tylko czasami
+                    if (Math.random() > 0.8) {
+                        showNotification('Ktoś właśnie edytował tekst!', 'info', 'Sprawdź co się zmieniło.');
+                    }
                 }
-            }, 30000); // 30 sekund
+            }, 60000);
         }
         
-        // Inicjalizacja po załadowaniu strony
-        document.addEventListener('DOMContentLoaded', init);
+        function getRandomUsername() {
+            const usernames = [
+                '@Byte_Official', '@Cyber_Editor', '@Text_Master', '@AI_Helper',
+                '@Code_Wizard', '@Digital_Writer', '@Tech_Guru', '@Creative_Mind'
+            ];
+            return usernames[Math.floor(Math.random() * usernames.length)];
+        }
         
-        // Dodatkowo: Automatycznie zapisz tekst co 5 sekund dla bezpieczeństwa
-        setInterval(() => {
-            if (sharedText.value) {
-                localStorage.setItem(STORAGE_KEY, sharedText.value);
+        // ============= POWIADOMIENIA =============
+        function showNotification(title, type, message) {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            // Ustaw typ powiadomienia
+            notification.className = 'notification';
+            icon.className = 'notification-icon ' + type;
+            icon.innerHTML = type === 'info' ? '<i class="fas fa-info-circle"></i>' :
+                           type === 'success' ? '<i class="fas fa-check-circle"></i>' :
+                           '<i class="fas fa-exclamation-triangle"></i>';
+            
+            // Ustaw treść
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            // Pokaż powiadomienie
+            notification.classList.add('show');
+            
+            // Ukryj po 5 sekundach
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // ============= ŁADOWANIE DANYCH =============
+        function loadAllData() {
+            // Załaduj historię edycji
+            const savedHistory = localStorage.getItem('edit_history');
+            if (savedHistory) {
+                editHistory = JSON.parse(savedHistory);
+                updateEditHistoryDisplay();
             }
-        }, 5000);
+            
+            // Załaduj użytkowników
+            const savedUsers = localStorage.getItem('global_editor_users');
+            if (savedUsers) {
+                allUsers = JSON.parse(savedUsers);
+            }
+            
+            // Załaduj licznik AI
+            aiEditCount = parseInt(localStorage.getItem('ai_edit_count') || '0');
+        }
+        
+        // ============= SYNCHRONIZACJA =============
+        function syncWithServer() {
+            // W prawdziwej aplikacji tutaj byłaby synchronizacja z serwerem
+            // Na razie tylko odświeżamy statystyki
+            updateLiveStats();
+            
+            // Sprawdzamy czy tekst się nie zmienił z innej karty
+            const savedText = localStorage.getItem('global_shared_text');
+            const currentText = document.getElementById('sharedText').value;
+            
+            if (savedText !== currentText) {
+                document.getElementById('sharedText').value = savedText;
+                document.getElementById('textPreview').textContent = savedText;
+                updateTextStats(savedText);
+                
+                // Pokaż powiadomienie tylko jeśli tekst faktycznie się zmienił
+                if (currentText !== '') {
+                    showNotification('Tekst zaktualizowany!', 'info', 'Ktoś właśnie edytował tekst.');
+                }
+            }
+        }
+        
+        // ============= EVENT LISTENERS =============
+        function initEventListeners() {
+            // Auto-save co 30 sekund
+            setInterval(() => {
+                const text = document.getElementById('sharedText').value;
+                localStorage.setItem('global_shared_text', text);
+            }, 3000);
+            
+            // Aktualizacja czasu co minutę
+            setInterval(() => {
+                document.getElementById('lastEditTime').textContent = 
+                    `Ostatnia edycja: ${new Date().toLocaleTimeString()}`;
+            }, 60000);
+        }
     </script>
 </body>
 </html>
